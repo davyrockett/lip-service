@@ -22,8 +22,10 @@ const LENGTHS = { short: 'Short', full: 'Full' };
 // ends with rest to fill its last bar (that's the breath). A count-in bar starts each exercise.
 // keys = how many keys it climbs by half steps; Full also comes back down a few keys at the end.
 const EXERCISES = [
-  { id: 'breath', name: 'Breathing', what: 'In for 4, hiss out for the count', breath: { short: [8, 10], full: [8, 10, 12] },
-    how: 'Breathe in low and slow while the soft chord swells (4 counts). Then hiss out on a long “sss” through the ticks and stop at the high tick. Shoulders loose.' },
+  // Breathing is rhythm only, at ♩ = 60: a bar breathing in, whole bars of hissing (counts are beats), a bar of rest.
+  { id: 'breath', name: 'Breathing', what: 'In for a bar, hiss out for 2–3 bars', bpm: 60, bar: 4,
+    breath: { short: [8, 12], full: [8, 8, 12] },
+    how: 'Breathe in low and slow for a bar while the soft chord swells. Then hiss out on a long “sss” for the tied notes and stop at the high tick. Shoulders loose.' },
   { id: 'hum', name: 'Humming', what: 'Hum on “mm”, 5 notes down', root: 45, bpm: 120, bar: 4, lyric: 'mm',
     notes: [[7, 1], [5, 1], [4, 1], [2, 1], [0, 2]], keys: { short: 6, full: 8 },
     how: 'Lips closed, teeth apart, hum on “mm”. Follow the notes down and feel the buzz on your lips.' },
@@ -99,21 +101,34 @@ function plan(voice, length, click) {
     chapters.push(ch);
     // A soft two-note chime marks each new exercise, then a moment to get ready.
     ev.push({ t: t + 0.3, type: 'chime' });
-    t += ex.breath ? 3.5 : 1.5;
+    t += 1.5;
 
     if (ex.breath) {
-      const rounds = ex.breath[length];
-      ch.detail = rounds.length + ' rounds';
+      const rounds = ex.breath[length], beat = 60 / ex.bpm;
+      ch.detail = `${rounds.length} rounds · ♩ = ${ex.bpm}`;
       const br = 48 + VOICES[voice].shift;
+      // Count-in bar (clicks only when the metronome is on).
+      if (click) for (let b = 0; b < ex.bar; b++) ev.push({ t: t + b * beat, type: 'click', down: b === 0 });
+      t += ex.bar * beat;
       for (const count of rounds) {
-        // Breathe in while a soft chord swells for 4 counts, then hiss through the ticks until the high tick.
-        segs.push({ ch: ci, type: 'breath', t0: t, count, end: t + 4 + count + 2.5 });
-        ev.push({ t, type: 'swell', notes: [br, br + 7, br + 12, br + 16], dur: 4 });
-        t += 4;
-        for (let i = 0; i < count; i++) ev.push({ t: t + i, type: 'tick', hi: i === count - 1 });
-        t += count + 2.5;
+        // Breathe in for a bar while a soft chord swells, hiss for the count (tied whole notes), then a bar of rest.
+        const bars = [{ breath: 'in', beats: 4 }];
+        for (let b = 0; b < count / 4; b++) bars.push({ breath: 'hiss', beats: 4, tie: b < count / 4 - 1 });
+        bars.push({ rest: true, beats: 4 });
+        const notes = bars.map((n, i) => ({ ...n, t0: t + i * 4 * beat, t1: t + (i + 1) * 4 * beat }));
+        const total = bars.length * 4, hissEnd = 4 + count;
+        ev.push({ t, type: 'swell', notes: [br, br + 7, br + 12, br + 16], dur: 4 * beat });
+        // Metronome on: a click on every beat. Off: ticks count the hiss. Either way the last hiss beat is a high tick.
+        for (let b = 0; b < total; b++) {
+          const at = t + b * beat;
+          if (b === hissEnd - 1) ev.push({ t: at, type: 'tick', hi: true });
+          else if (click) ev.push({ t: at, type: 'click', down: b % ex.bar === 0 });
+          else if (b >= 4 && b < hissEnd) ev.push({ t: at, type: 'tick', hi: false });
+        }
+        segs.push({ ch: ci, type: 'key', t0: t, sing: t, end: t + total * beat, root: null, ex, notes });
+        t += total * beat;
       }
-      t += 1;
+      t += 1.2;
       continue;
     }
 
@@ -391,8 +406,10 @@ function drawKey(seg) {
   scoreEl.replaceChildren();
   noteEls = []; litNote = -1;
   if (!VF || W <= 0) return;
-  const ex = seg.ex, vclef = VOICES[state.voice].clef, clef = vclef === 'bass' ? 'bass' : 'treble';
-  const key = KEY_NAMES[seg.root % 12];
+  // Breathing is rhythm only: a percussion clef with every note on the middle line.
+  const ex = seg.ex, perc = !!ex.breath, vclef = VOICES[state.voice].clef;
+  const clef = perc ? 'percussion' : vclef === 'bass' ? 'bass' : 'treble';
+  const key = perc ? null : KEY_NAMES[seg.root % 12];
 
   // Split the pattern into bars.
   const bars = [[]];
@@ -403,7 +420,12 @@ function drawKey(seg) {
     inBar += n.beats;
   }
   const startX = (st) => st.getNoteStartX() - st.getX();
-  const head = (st) => { st.addClef(clef, 'default', vclef === 'treble8vb' ? '8vb' : undefined).addKeySignature(key).addTimeSignature(`${ex.bar}/4`); return st; };
+  const head = (st) => {
+    st.addClef(clef, 'default', !perc && vclef === 'treble8vb' ? '8vb' : undefined);
+    if (key) st.addKeySignature(key);
+    st.addTimeSignature(`${ex.bar}/4`);
+    return st;
+  };
   const extra = startX(head(new VF.Stave(0, 0, 300))) - startX(new VF.Stave(0, 0, 300));
   // Room each bar needs; the whole score shrinks a little if the screen is narrower than that.
   const weight = bars.map((b) => 28 + b.reduce((w, n) => w + (n.rest ? 24 : Array.isArray(ex.lyric) ? 46 : 26), 0));
@@ -427,10 +449,11 @@ function drawKey(seg) {
       const d = VF_DUR[n.beats];
       const sn = n.rest
         ? new VF.StaveNote({ clef, keys: [clef === 'bass' ? 'd/3' : 'b/4'], duration: d + 'r' })
-        : new VF.StaveNote({ clef, keys: [spell(seg.root, n.semi)], duration: d, auto_stem: true });
+        : new VF.StaveNote({ clef, keys: [perc ? 'b/4' : spell(seg.root, n.semi)], duration: d, auto_stem: true });
       if (d.endsWith('d')) VF.Dot.buildAndAttach([sn], { all: true });
       if (!n.rest) {
-        const word = Array.isArray(ex.lyric) ? ex.lyric[sungIndex] : (sungIndex === 0 ? ex.lyric : null);
+        const word = perc ? (n.breath === 'in' ? 'in' : sungIndex === 1 ? 'sss' : null)
+          : Array.isArray(ex.lyric) ? ex.lyric[sungIndex] : (sungIndex === 0 ? ex.lyric : null);
         // Staccato dot on the notehead side (opposite the stem).
         if (ex.staccato) sn.addModifier(new VF.Articulation('a.').setPosition(
           sn.getStemDirection() === VF.Stem.UP ? VF.Modifier.Position.BELOW : VF.Modifier.Position.ABOVE), 0);
@@ -446,11 +469,15 @@ function drawKey(seg) {
     });
     const beams = VF.Beam.generateBeams(notes, { groups: [new VF.Fraction(1, 4)] });
     const voice = new VF.Voice({ num_beats: ex.bar, beat_value: 4 }).addTickables(notes);
-    VF.Accidental.applyAccidentals([voice], key);
+    if (key) VF.Accidental.applyAccidentals([voice], key);
     new VF.Formatter().joinVoices([voice]).format([voice], st.getNoteEndX() - st.getNoteStartX() - 10);
     voice.draw(ctx, st);
     beams.forEach((b) => b.setContext(ctx).draw());
     x += w;
+  });
+  // Ties hold the hiss across bars.
+  vfNotes.forEach(({ sn, n }, i) => {
+    if (n.tie && vfNotes[i + 1]) new VF.StaveTie({ first_note: sn, last_note: vfNotes[i + 1].sn, first_indices: [0], last_indices: [0] }).setContext(ctx).draw();
   });
   // Slides: a straight line from one note head to the next (a glissando).
   vfNotes.forEach(({ sn, n }, i) => {
@@ -463,24 +490,6 @@ function drawKey(seg) {
     ctx.restore();
   });
   noteEls = [...scoreEl.querySelectorAll('.vf-stavenote')];
-}
-
-function drawBreath(seg) {
-  scoreEl.replaceChildren();
-  noteEls = []; litNote = -1;
-  const box = document.createElement('div');
-  box.className = 'breath';
-  const row = (label, n) => {
-    const d = document.createElement('div');
-    d.className = 'breath-row';
-    const b = document.createElement('b');
-    b.textContent = label;
-    d.append(b);
-    for (let i = 1; i <= n; i++) { const c = document.createElement('span'); c.textContent = i; d.append(c); noteEls.push(c); }
-    return d;
-  };
-  box.append(row('In', 4), row('Hiss', seg.count));
-  scoreEl.append(box);
 }
 
 function segAt(time) {
@@ -498,23 +507,21 @@ function updateScore(force) {
   if (!seg) { scoreEl.replaceChildren(); shown = null; $('score-cap').textContent = ''; return; }
   if (seg !== shown || force) {
     shown = seg;
-    if (seg.type === 'key') {
-      drawKey(seg);
+    drawKey(seg);
+    if (!seg.ex.breath) {
       const name = KEY_NAMES[seg.root % 12].replace('b', '♭').replace('#', '♯');
       $('score-cap').textContent = `${name} major · ♩ = ${seg.ex.bpm}`;
-    } else {
-      drawBreath(seg);
-      $('score-cap').textContent = 'One count per second';
     }
   }
-  // Which note (or breath count) is sounding now.
-  let lit = -1;
-  if (seg.type === 'key') {
-    lit = seg.notes.findIndex((n) => !n.rest && time >= n.t0 && time < n.t1);
-  } else if (time >= seg.t0) {
-    const s = time - seg.t0;
-    if (s < 4) lit = Math.floor(s);
-    else if (s < 4 + seg.count) lit = 4 + Math.floor(s - 4);
+  // Which note is sounding now.
+  const lit = seg.notes.findIndex((n) => !n.rest && time >= n.t0 && time < n.t1);
+  if (seg.ex.breath) {
+    // Breathing: count the beats so you know where you are in the bar.
+    const beat = Math.floor((time - seg.t0) * seg.ex.bpm / 60), hiss = seg.notes.filter((n) => n.breath === 'hiss').length * 4;
+    const cap = time < seg.t0 ? `Breathing · ♩ = ${seg.ex.bpm}`
+      : beat < 4 ? `In · ${beat + 1} of 4`
+      : beat < 4 + hiss ? `Hiss · ${beat - 3} of ${hiss}` : 'Rest';
+    if ($('score-cap').textContent !== cap) $('score-cap').textContent = cap;
   }
   if (lit !== litNote) {
     noteEls[litNote]?.classList.remove('on');

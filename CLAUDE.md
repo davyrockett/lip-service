@@ -58,6 +58,8 @@ Repo `vocal-warmup`. Live: https://davyrockett.github.io/vocal-warmup/ See READM
 - **Notation:** VexFlow (`vendor/`, same copy as Page Fright) draws the current key's pattern; the sounding note
   gets `.on` (orange), like Page Fright's Read section. Baritone = bass clef, tenor = treble 8vb, alto/soprano = treble.
 - **Metronome** option re-renders the track with clicks on every beat (downbeat higher).
+- **Breathing** is on the same grid (♩ = 60, 4/4): bar in, hiss bars (tied whole notes), rest bar; drawn on a
+  percussion clef with a beat counter in the caption. Hiss counts must be multiples of 4.
   Baritone starts from the listed `root`; the others are shifted up by `VOICES[...].shift` (tenor 3, alto 10, soprano 15). Keep everything gentle.
 - **No voice, ever** (David's rule): no spoken or sung audio. Instructions are written (`how` on each exercise,
   shown in the player card); the audio is only synth tones. A chime marks each new exercise.

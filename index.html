@@ -94,12 +94,6 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .score .vf-stavenote.on, .score .vf-stavenote.on [fill]:not([fill="none"]) { fill: var(--accent); }
 .score .vf-stavenote.on, .score .vf-stavenote.on [stroke]:not([stroke="none"]) { stroke: var(--accent); }
 .score .vf-stavenote.on text { fill: var(--accent); }
-.breath { height: 100%; display: grid; align-content: center; gap: 8px; padding: 0 6px; }
-.breath-row { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
-.breath-row b { flex-basis: 100%; font-family: var(--f-display); font-size: 1.25rem; line-height: 1.1; text-transform: uppercase; }
-.breath-row span { width: 21px; height: 21px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
-  font-size: .72rem; color: var(--muted); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
-.breath-row span.on { background: var(--accent); border-color: var(--accent); color: #1E1B18; font-weight: 700; }
 input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
 .time { display: flex; justify-content: space-between; color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; margin-top: 2px; }
 .controls { display: grid; grid-template-columns: 64px 1fr 64px; gap: 10px; margin-top: 14px; }
@@ -274,7 +268,7 @@ $('set-update').addEventListener('click', async () => {
 <script>
 // Offline support + updates. See sw.js.
 // The version shown in Settings. tools/bump.sh keeps this in step with VERSION in sw.js.
-window.APP_VERSION = 'v8';
+window.APP_VERSION = 'v9';
 (async () => {
   if (!('serviceWorker' in navigator)) return;
   const reg = await navigator.serviceWorker.register('sw.js');

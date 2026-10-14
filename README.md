@@ -18,13 +18,14 @@ A soft chime marks each new exercise. After a one-bar count-in you hear the note
 with, moving up a half step each time in steady 4/4 (no chord between keys). Full climbs higher and then comes back down a few keys.
 The player shows each key's notation (bass clef for baritone, tenor treble clef for tenor, treble clef for alto and soprano) with the current
 note lit up in orange, like Page Fright's Read section, plus the key and tempo. Slides are drawn as glissando lines.
-Breathing: breathe in while a soft chord swells, then hiss through the ticks until the high tick (the counts light up).
+Breathing is written as rhythm (percussion clef): a bar breathing in while a soft chord swells, tied notes to hiss
+through, a high tick to stop, then a bar of rest, with a beat counter above. The metronome clicks through all of it.
 
 ## The exercises
 
 | | |
 |---|---|
-| Breathing | In for 4, hiss out for 8, 10, 12 |
+| Breathing | in for a bar, hiss out for 2–3 bars (♩ = 60) |
 | Humming | "mm", 5 notes down |
 | Lip trills | 5 notes up and back down |
 | Lip trill sirens | slide up an octave and back |
