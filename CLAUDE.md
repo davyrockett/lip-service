@@ -56,9 +56,9 @@ Repo `vocal-warmup`. Live: https://davyrockett.github.io/vocal-warmup/ See READM
   notes as [semitones above the key, beats, slide-into-next?], `lyric`. Everything is 4/4 with no chord cue between keys
   (David wants the momentum kept); each pattern is padded to whole bars and a count-in bar starts each exercise. `plan()` also returns `segs` (one per key / breath round) that drive the notation.
 - **Notation:** VexFlow (`vendor/`, same copy as Page Fright) draws the current key's pattern; the sounding note
-  gets `.on` (orange), like Page Fright's Read section. Baritone = bass clef, tenor = treble 8vb.
+  gets `.on` (orange), like Page Fright's Read section. Baritone = bass clef, tenor = treble 8vb, alto/soprano = treble.
 - **Metronome** option re-renders the track with clicks on every beat (downbeat higher).
-  Baritone starts from the listed `root`; tenor is 3 semitones higher (`VOICES`). Keep everything gentle.
+  Baritone starts from the listed `root`; the others are shifted up by `VOICES[...].shift` (tenor 3, alto 10, soprano 15). Keep everything gentle.
 - **No voice, ever** (David's rule): no spoken or sung audio. Instructions are written (`how` on each exercise,
   shown in the player card); the audio is only synth tones. A chime marks each new exercise.
 - The voice and length switches copy Page Fright's Read | Improv pill switch (`.views`).

@@ -5,8 +5,15 @@
 const SR = 24000;          // sample rate of the rendered track (plenty for soft synth tones)
 const $ = (id) => document.getElementById(id);
 
-// Baritone reads bass clef; tenor reads treble clef an octave down (the usual tenor clef) and sits 3 semitones higher.
-const VOICES = { baritone: { name: 'Baritone', shift: 0, clef: 'bass' }, tenor: { name: 'Tenor', shift: 3, clef: 'tenor' } };
+// shift = semitones above the baritone starting notes (exercise roots are written for baritone).
+// Baritone reads bass clef; tenor reads treble clef an octave down (written an octave up, with the little 8 under
+// the clef); alto and soprano read treble clef at pitch.
+const VOICES = {
+  soprano: { name: 'Soprano', shift: 15, clef: 'treble' },
+  alto: { name: 'Alto', shift: 10, clef: 'treble' },
+  tenor: { name: 'Tenor', shift: 3, clef: 'treble8vb' },
+  baritone: { name: 'Baritone', shift: 0, clef: 'bass' },
+};
 const LENGTHS = { short: 'Short', full: 'Full' };
 
 // Each exercise is written on a beat grid so the notation, the highlight and the metronome line up.
@@ -363,7 +370,7 @@ let shown = null, noteEls = [], litNote = -1, lastWidth = 0;
 
 // Spells a scale degree in the key's own letters (so D major gets F#, not Gb). Tenor is written an octave up.
 function spell(root, semi) {
-  const written = root + semi + (state.voice === 'tenor' ? 12 : 0);
+  const written = root + semi + (VOICES[state.voice].clef === 'treble8vb' ? 12 : 0);
   const li = (LETTERS.indexOf(KEY_NAMES[root % 12][0].toLowerCase()) + DEGREE[semi]) % 7;
   let oct = Math.floor(written / 12) - 1, nat = (oct + 1) * 12 + NATURAL[li];
   if (nat - written > 6) { oct--; nat -= 12; } else if (written - nat > 6) { oct++; nat += 12; }
@@ -376,7 +383,7 @@ function drawKey(seg) {
   scoreEl.replaceChildren();
   noteEls = []; litNote = -1;
   if (!VF || W <= 0) return;
-  const ex = seg.ex, clef = VOICES[state.voice].clef === 'bass' ? 'bass' : 'treble';
+  const ex = seg.ex, vclef = VOICES[state.voice].clef, clef = vclef === 'bass' ? 'bass' : 'treble';
   const key = KEY_NAMES[seg.root % 12];
 
   // Split the pattern into bars.
@@ -388,7 +395,7 @@ function drawKey(seg) {
     inBar += n.beats;
   }
   const startX = (st) => st.getNoteStartX() - st.getX();
-  const head = (st) => { st.addClef(clef, 'default', clef === 'treble' ? '8vb' : undefined).addKeySignature(key).addTimeSignature(`${ex.bar}/4`); return st; };
+  const head = (st) => { st.addClef(clef, 'default', vclef === 'treble8vb' ? '8vb' : undefined).addKeySignature(key).addTimeSignature(`${ex.bar}/4`); return st; };
   const extra = startX(head(new VF.Stave(0, 0, 300))) - startX(new VF.Stave(0, 0, 300));
   // Room each bar needs; the whole score shrinks a little if the screen is narrower than that.
   const weight = bars.map((b) => 28 + b.reduce((w, n) => w + (n.rest ? 24 : Array.isArray(ex.lyric) ? 46 : 26), 0));

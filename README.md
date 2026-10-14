@@ -7,7 +7,7 @@ On iPhone: open it in Safari → Share → **Add to Home Screen**. After that it
 
 ## Using it
 
-1. Pick **Baritone** or **Tenor**, **Short** (about 4 min) or **Full** (about 10 min), and tap the
+1. Pick **Soprano**, **Alto**, **Tenor** or **Baritone**, **Short** (about 4 min) or **Full** (about 10 min), and tap the
    **metronome icon** if you want a click on every beat.
 2. Tap **Start** before you pull out, then lock the phone.
 3. It plays through Bluetooth or CarPlay (it shows up in **Now Playing**). The car's or headphones'
@@ -16,7 +16,7 @@ On iPhone: open it in Safari → Share → **Add to Home Screen**. After that it
 There's no voice: the instructions for each exercise are written on screen (read them before you go).
 A soft chime marks each new exercise. After a one-bar count-in you hear the notes on a warm synth to sing along
 with, moving up a half step each time in steady 4/4 (no chord between keys). Full climbs higher and then comes back down a few keys.
-The player shows each key's notation (bass clef for baritone, tenor treble clef for tenor) with the current
+The player shows each key's notation (bass clef for baritone, tenor treble clef for tenor, treble clef for alto and soprano) with the current
 note lit up in orange, like Page Fright's Read section, plus the key and tempo. Slides are drawn as glissando lines.
 Breathing: breathe in while a soft chord swells, then hiss through the ticks until the high tick (the counts light up).
 
@@ -33,7 +33,7 @@ Breathing: breathe in while a soft chord swells, then hiss through the ticks unt
 | Vowels | mee may mah moh moo, 5 notes down |
 | Yah arpeggios (Full) | 1-3-5-3-1 |
 
-The note range for each exercise is listed in the app. Tenor is 3 half steps higher than baritone.
+The note range for each exercise is listed in the app. Tenor is 3 half steps above baritone, alto 10, soprano 15.
 
 ## Settings (gear icon)
 
