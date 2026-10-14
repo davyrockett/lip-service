@@ -2,9 +2,9 @@
 //
 // IMPORTANT: whenever any file below changes, bump VERSION.
 // That is how phones and iPads learn there's an update to download.
-const VERSION = 'v9';
-const CACHE = `warmup-${VERSION}`;
-const FONTS = 'warmup-fonts';
+const VERSION = 'v10';
+const CACHE = `lipservice-${VERSION}`;
+const FONTS = 'lipservice-fonts';
 
 const ASSETS = [
   './',
@@ -29,7 +29,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(
-        keys.filter((key) => key.startsWith('warmup-v') && key !== CACHE)
+        keys.filter((key) => key.startsWith('lipservice-v') && key !== CACHE)
           .map((key) => caches.delete(key))
       ))
       .then(() => self.clients.claim())
