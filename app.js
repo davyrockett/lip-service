@@ -1,41 +1,42 @@
 // Lip Service: builds the whole warm-up as one audio track of warm synth guide notes (no voice: the
-// instructions are written on screen),
-// so it keeps playing with the phone locked and shows up in CarPlay / the lock screen as "Now Playing".
-// The car's skip buttons jump between exercises.
+// instructions and notation are on screen), so it keeps playing with the phone locked and shows up in
+// CarPlay / the lock screen as "Now Playing". The car's skip buttons jump between exercises.
 
 const SR = 24000;          // sample rate of the rendered track (plenty for soft synth tones)
-const BEAT = 0.42;         // seconds per beat for the guide notes
 const $ = (id) => document.getElementById(id);
 
-// Lowest starting note (MIDI number) for baritone; tenor starts 3 semitones higher.
-const VOICES = { baritone: { name: 'Baritone', shift: 0 }, tenor: { name: 'Tenor', shift: 3 } };
+// Baritone reads bass clef; tenor reads treble clef an octave down (the usual tenor clef) and sits 3 semitones higher.
+const VOICES = { baritone: { name: 'Baritone', shift: 0, clef: 'bass' }, tenor: { name: 'Tenor', shift: 3, clef: 'tenor' } };
 const LENGTHS = { short: 'Short', full: 'Full' };
 
-// Each exercise: notes are [semitones above the key's root, beats]; glides are a start note then [target, beats] slides.
+// Each exercise is written on a beat grid so the notation, the highlight and the metronome line up.
+// notes: [semitones above the key, beats (1 = quarter note), slide into the next note?]
+// Each key starts with one bar of the key's chord, then the pattern; the last bar is filled with rest.
 // keys = how many keys it climbs by half steps; Full also comes back down a few keys at the end.
 const EXERCISES = [
   { id: 'breath', name: 'Breathing', what: 'In for 4, hiss out for the count', breath: { short: [8, 10], full: [8, 10, 12] },
     how: 'Breathe in low and slow while the soft chord swells (4 counts). Then hiss out on a long “sss” through the ticks and stop at the high tick. Shoulders loose.' },
-  { id: 'hum', name: 'Humming', what: 'Hum on “mm”, 5 notes down', root: 45,
-    notes: [[7, 1], [5, 1], [4, 1], [2, 1], [0, 2.5]], keys: { short: 6, full: 8 },
+  { id: 'hum', name: 'Humming', what: 'Hum on “mm”, 5 notes down', root: 45, bpm: 120, bar: 4, lyric: 'mm',
+    notes: [[7, 1], [5, 1], [4, 1], [2, 1], [0, 2]], keys: { short: 6, full: 8 },
     how: 'Lips closed, teeth apart, hum on “mm”. Follow the notes down and feel the buzz on your lips.' },
-  { id: 'trill', name: 'Lip trills', what: '5 notes up and back down', root: 43,
-    notes: [[0, .75], [2, .75], [4, .75], [5, .75], [7, .75], [5, .75], [4, .75], [2, .75], [0, 2]], keys: { short: 8, full: 12 },
+  { id: 'trill', name: 'Lip trills', what: '5 notes up and back down', root: 43, bpm: 96, bar: 2, lyric: 'brr',
+    notes: [[0, .5], [2, .5], [4, .5], [5, .5], [7, .5], [5, .5], [4, .5], [2, .5], [0, 2]], keys: { short: 8, full: 12 },
     how: 'Loose lips: blow through them like a motorboat, 5 notes up and back down. If your lips won’t buzz, hum it instead.' },
-  { id: 'siren', name: 'Lip trill sirens', what: 'Slide up an octave and back', root: 45,
-    glide: [0, [12, 3], [12, .5], [0, 3]], keys: { short: 5, full: 8 },
+  { id: 'siren', name: 'Lip trill sirens', what: 'Slide up an octave and back', root: 45, bpm: 96, bar: 4, lyric: 'brr',
+    notes: [[0, 2, true], [12, 2, true], [0, 2]], keys: { short: 5, full: 8 },
     how: 'Keep the lip trill going and slide smoothly up to the top note and back down. Easy at the top: don’t push.' },
-  { id: 'sigh', name: 'Sighs', what: 'Breathy “hoo”, slide down an octave', root: 43,
-    glide: [12, [12, .3], [0, 3.5]], keys: { short: 4, full: 6 },
+  { id: 'sigh', name: 'Sighs', what: 'Breathy “hoo”, slide down an octave', root: 43, bpm: 96, bar: 4, lyric: 'hoo',
+    notes: [[12, 2, true], [0, 2]], keys: { short: 4, full: 6 },
     how: 'On a breathy “hoo”, start high and slide gently down, like a big sigh of relief.' },
-  { id: 'ng', name: 'NG slides', what: '“Sing” the ng, slide up a fifth and back', root: 45, full: true,
-    glide: [0, [7, 2], [7, .5], [0, 2]], keys: { full: 8 },
+  { id: 'ng', name: 'NG slides', what: '“Sing” the ng, slide up a fifth and back', root: 45, bpm: 100, bar: 4, lyric: 'ng', full: true,
+    notes: [[0, 2, true], [7, 2, true], [0, 2]], keys: { full: 8 },
     how: 'Sing the “ng” at the end of the word “sing” and glide up and back down. Keep it light.' },
-  { id: 'vowels', name: 'Vowels', what: 'Mee may mah moh moo, 5 notes down', root: 45,
-    notes: [[7, 1], [5, 1], [4, 1], [2, 1], [0, 2.5]], keys: { short: 6, full: 9 },
+  { id: 'vowels', name: 'Vowels', what: 'Mee may mah moh moo, 5 notes down', root: 45, bpm: 120, bar: 4,
+    lyric: ['mee', 'may', 'mah', 'moh', 'moo'],
+    notes: [[7, 1], [5, 1], [4, 1], [2, 1], [0, 2]], keys: { short: 6, full: 9 },
     how: 'Sing mee, may, mah, moh, moo, one vowel per note going down. Keep the easy buzz from the hum.' },
-  { id: 'yah', name: 'Yah arpeggios', what: '“Yah” on 1-3-5-3-1', root: 45, full: true,
-    notes: [[0, 1], [4, 1], [7, 1], [4, 1], [0, 2.5]], keys: { full: 9 },
+  { id: 'yah', name: 'Yah arpeggios', what: '“Yah” on 1-3-5-3-1', root: 45, bpm: 120, bar: 4, lyric: 'yah', full: true,
+    notes: [[0, 1], [4, 1], [7, 1], [4, 1], [0, 2]], keys: { full: 9 },
     how: 'Sing “yah” on each note, up and back down. Let your jaw hang loose.' },
 ];
 
@@ -43,7 +44,8 @@ const store = {
   get(k, d) { try { return localStorage.getItem('vw.' + k) || d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem('vw.' + k, v); } catch {} },
 };
-const state = { voice: store.get('voice', 'baritone'), length: store.get('length', 'full'), plan: null, url: null };
+const state = { voice: store.get('voice', 'baritone'), length: store.get('length', 'full'),
+  click: store.get('click', 'off') === 'on', plan: null, url: null };
 if (!VOICES[state.voice]) state.voice = 'baritone';
 if (!LENGTHS[state.length]) state.length = 'full';
 
@@ -60,14 +62,24 @@ function keyRoots(ex, voice, length) {
   return up;
 }
 
-function plan(voice, length) {
-  const ev = [];   // { t, type, ... }
+// The pattern of one key, with a closing rest so it fills whole bars.
+function barsOf(ex) {
+  const notes = ex.notes.map(([semi, beats, slide]) => ({ semi, beats, slide: !!slide }));
+  const used = notes.reduce((a, n) => a + n.beats, 0), pad = Math.ceil(used / ex.bar) * ex.bar - used;
+  if (pad) notes.push({ rest: true, beats: pad });
+  return notes;
+}
+
+function plan(voice, length, click) {
+  const ev = [];        // sounds: { t, type, ... }
   const chapters = [];
+  const segs = [];      // what the screen shows: one per key (notation) or per breath round
   const range = [127, 0];
   let t = 0;
 
   for (const ex of EXERCISES) {
     if (ex.full && length !== 'full') continue;
+    const ci = chapters.length;
     const ch = { id: ex.id, name: ex.name, what: ex.what, how: ex.how, start: t };
     chapters.push(ch);
     // A soft two-note chime marks each new exercise, then a moment to get ready.
@@ -79,7 +91,8 @@ function plan(voice, length) {
       ch.detail = rounds.length + ' rounds';
       const br = 48 + VOICES[voice].shift;
       for (const count of rounds) {
-        // Breathe in while a soft chord swells for 4 counts, then hiss through the ticks until the high one.
+        // Breathe in while a soft chord swells for 4 counts, then hiss through the ticks until the high tick.
+        segs.push({ ch: ci, type: 'breath', t0: t, count, end: t + 4 + count + 2.5 });
         ev.push({ t, type: 'swell', notes: [br, br + 7, br + 12, br + 16], dur: 4 });
         t += 4;
         for (let i = 0; i < count; i++) ev.push({ t: t + i, type: 'tick', hi: i === count - 1 });
@@ -89,29 +102,42 @@ function plan(voice, length) {
       continue;
     }
 
+    const beat = 60 / ex.bpm, pattern = barsOf(ex);
     const roots = keyRoots(ex, voice, length);
-    const lo = Math.min(...roots), hi = Math.max(...roots) + Math.max(...(ex.notes || [[ex.glide[0]], ...ex.glide.slice(1)]).map((n) => n[0]));
+    const sung = pattern.filter((n) => !n.rest).map((n) => n.semi);
+    const lo = Math.min(...roots) + Math.min(...sung), hi = Math.max(...roots) + Math.max(...sung);
     ch.detail = `${roots.length} keys · ${midiName(lo)}–${midiName(hi)}`;
     range[0] = Math.min(range[0], lo); range[1] = Math.max(range[1], hi);
+    ch.bpm = ex.bpm;
     for (const root of roots) {
-      // Cue: the key's chord, then the pattern to sing along with.
-      ev.push({ t, type: 'chord', notes: [root, root + 4, root + 7], dur: BEAT * 1.6 });
-      t += BEAT * 2.2;
-      if (ex.notes) {
-        for (const [semi, beats] of ex.notes) {
-          ev.push({ t, type: 'note', midi: root + semi, dur: beats * BEAT });
-          t += beats * BEAT;
-        }
-      } else {
-        const [first, ...moves] = ex.glide;
-        const path = [[0, root + first]];
-        let gt = 0.35;  // hold the first note briefly before sliding
-        path.push([gt, root + first]);
-        for (const [semi, beats] of moves) { gt += beats * BEAT; path.push([gt, root + semi]); }
-        ev.push({ t, type: 'glide', path, dur: gt });
-        t += gt;
+      // Cue bar: the key's chord, then the pattern to sing along with.
+      const cueBeats = ex.bar, sing = t + cueBeats * beat;
+      ev.push({ t, type: 'chord', notes: [root, root + 4, root + 7], dur: beat * Math.min(2, cueBeats - 0.5) });
+      const notes = [];
+      let bt = 0;
+      for (const n of pattern) {
+        notes.push({ ...n, midi: n.rest ? null : root + n.semi, t0: sing + bt * beat, t1: sing + (bt + n.beats) * beat });
+        bt += n.beats;
       }
-      t += BEAT * 2;  // breath before the next key
+      const end = sing + bt * beat;
+      if (click) for (let b = 0; b < cueBeats + bt; b++) ev.push({ t: t + b * beat, type: 'click', down: b % ex.bar === 0 });
+      // Notes that slide into the next one become one continuous glide.
+      for (let i = 0; i < notes.length; i++) {
+        const n = notes[i];
+        if (n.rest) continue;
+        if (!n.slide) { ev.push({ t: n.t0, type: 'note', midi: n.midi, dur: n.t1 - n.t0 }); continue; }
+        const path = [];
+        let j = i;
+        for (; notes[j].slide; j++) {
+          const a = notes[j], hold = (a.t1 - a.t0) * 0.35;
+          path.push([a.t0 - n.t0, a.midi], [a.t0 - n.t0 + hold, a.midi]);
+        }
+        path.push([notes[j].t0 - n.t0, notes[j].midi], [notes[j].t1 - n.t0, notes[j].midi]);
+        ev.push({ t: n.t0, type: 'glide', path, dur: notes[j].t1 - n.t0 });
+        i = j;
+      }
+      segs.push({ ch: ci, type: 'key', t0: t, sing, end, root, ex, notes });
+      t = end;
     }
     t += 1.2;
   }
@@ -119,7 +145,7 @@ function plan(voice, length) {
   const end = 48 + VOICES[voice].shift;
   ev.push({ t: t + 0.2, type: 'swell', notes: [end, end + 7, end + 12, end + 16], dur: 3.5, fade: true });
   t += 5;
-  return { events: ev, chapters, total: t, range };
+  return { events: ev, chapters, segs, total: t, range };
 }
 
 // ---------- Rendering: synthesises the timeline into a WAV file ----------
@@ -191,10 +217,20 @@ function addTick(buf, t0, hi) {
   }
 }
 
+function addClick(buf, t0, down) {
+  // Metronome: a short, soft woodblock-like click; the first beat of each bar is a little higher.
+  const f = down ? 1700 : 1250, s0 = Math.round(t0 * SR), n = Math.round(0.035 * SR);
+  for (let i = 0; i < n && s0 + i < buf.length; i++) {
+    const tt = i / SR;
+    buf[s0 + i] += Math.sin(2 * Math.PI * f * tt) * Math.exp(-tt * 120) * (down ? 0.22 : 0.15);
+  }
+}
+
 function render(p) {
   const buf = new Float32Array(Math.ceil(p.total * SR));
   for (const e of p.events) {
     if (e.type === 'tick') addTick(buf, e.t, e.hi);
+    else if (e.type === 'click') addClick(buf, e.t, e.down);
     else if (e.type === 'chime') addChime(buf, e.t);
     else if (e.type === 'note') addNote(buf, e.t, e.midi, e.dur, 0.22);
     else if (e.type === 'chord') e.notes.forEach((m) => addNote(buf, e.t, m, e.dur, 0.09));
@@ -237,13 +273,14 @@ function prepare() {
   $('play-label').textContent = 'Preparing…';
   // Let the "Preparing…" label paint before the (brief) heavy work.
   setTimeout(() => {
-    state.plan = plan(state.voice, state.length);
+    state.plan = plan(state.voice, state.length, state.click);
     const blob = render(state.plan);
     if (state.url) URL.revokeObjectURL(state.url);
     state.url = URL.createObjectURL(blob);
     audio.src = state.url;
     audio.load();
     current = -1;
+    shown = null;
     renderList();
     updateLengths();
     $('play').disabled = false;
@@ -253,7 +290,7 @@ function prepare() {
 
 function updateLengths() {
   const p = state.plan;
-  $('summary').textContent = `${VOICES[state.voice].name} range ${midiName(p.range[0])}–${midiName(p.range[1])} · about ${Math.round(p.total / 60)} min`;
+  $('summary').textContent = `${VOICES[state.voice].name} range ${midiName(p.range[0])}–${midiName(p.range[1])} · about ${Math.round(p.total / 60)} min${state.click ? ' · metronome on' : ''}`;
 }
 
 function renderList() {
@@ -306,9 +343,175 @@ function tick() {
   $('play-icon').innerHTML = playing ? '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>'
     : '<path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/>';
   $('play-label').textContent = playing ? 'Pause' : (time > 0.5 && time < total - 0.5 ? 'Resume' : 'Start');
-  document.querySelectorAll('[data-voice], [data-length]').forEach((b) => { b.disabled = playing; });
+  document.querySelectorAll('[data-voice], [data-length], [data-click]').forEach((b) => { b.disabled = playing; });
+  if (playing) startLoop();
+  updateScore();
   $('settings-note').hidden = !playing;
 }
+
+// ---------- Notation: the current key's pattern, drawn with VexFlow like Page Fright's Read section ----------
+
+const VF = window.Vex && Vex.Flow;
+const LETTERS = ['c', 'd', 'e', 'f', 'g', 'a', 'b'];
+const NATURAL = [0, 2, 4, 5, 7, 9, 11];
+const KEY_NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+const DEGREE = { 0: 0, 2: 1, 4: 2, 5: 3, 7: 4, 9: 5, 11: 6, 12: 7 };
+const VF_DUR = { 4: 'w', 3: 'hd', 2: 'h', 1.5: 'qd', 1: 'q', 0.5: '8' };
+const scoreEl = $('score');
+let shown = null, noteEls = [], litNote = -1, lastWidth = 0;
+
+// Spells a scale degree in the key's own letters (so D major gets F#, not Gb). Tenor is written an octave up.
+function spell(root, semi) {
+  const written = root + semi + (state.voice === 'tenor' ? 12 : 0);
+  const li = (LETTERS.indexOf(KEY_NAMES[root % 12][0].toLowerCase()) + DEGREE[semi]) % 7;
+  let oct = Math.floor(written / 12) - 1, nat = (oct + 1) * 12 + NATURAL[li];
+  if (nat - written > 6) { oct--; nat -= 12; } else if (written - nat > 6) { oct++; nat += 12; }
+  return `${LETTERS[li]}${{ '-2': 'bb', '-1': 'b', 0: '', 1: '#', 2: '##' }[written - nat]}/${oct}`;
+}
+
+function drawKey(seg) {
+  const W = scoreEl.clientWidth;
+  lastWidth = W;
+  scoreEl.replaceChildren();
+  noteEls = []; litNote = -1;
+  if (!VF || W <= 0) return;
+  const ex = seg.ex, clef = VOICES[state.voice].clef === 'bass' ? 'bass' : 'treble';
+  const key = KEY_NAMES[seg.root % 12];
+
+  // Split the pattern into bars.
+  const bars = [[]];
+  let inBar = 0;
+  for (const n of seg.notes) {
+    if (inBar >= ex.bar) { bars.push([]); inBar = 0; }
+    bars[bars.length - 1].push(n);
+    inBar += n.beats;
+  }
+  const startX = (st) => st.getNoteStartX() - st.getX();
+  const head = (st) => { st.addClef(clef, 'default', clef === 'treble' ? '8vb' : undefined).addKeySignature(key).addTimeSignature(`${ex.bar}/4`); return st; };
+  const extra = startX(head(new VF.Stave(0, 0, 300))) - startX(new VF.Stave(0, 0, 300));
+  // Room each bar needs; the whole score shrinks a little if the screen is narrower than that.
+  const weight = bars.map((b) => 28 + b.reduce((w, n) => w + (n.rest ? 24 : Array.isArray(ex.lyric) ? 46 : 26), 0));
+  const total = weight.reduce((a, b) => a + b, 0);
+  const scale = Math.min(W >= 480 ? 1.15 : 1, W / (extra + total + 8));
+  const lw = W / scale - 4, H = 140;
+  const r = new VF.Renderer(scoreEl, VF.Renderer.Backends.SVG);
+  r.resize(W, H);
+  const ctx = r.getContext();
+  ctx.scale(scale, scale);
+  let x = 2;
+  const vfNotes = [];
+  let sungIndex = 0;
+  bars.forEach((bar, bi) => {
+    const w = (lw - extra) * weight[bi] / total + (bi === 0 ? extra : 0);
+    const st = new VF.Stave(x, 4, w, { space_above_staff_ln: 3.5 });
+    if (bi === 0) head(st);
+    if (bi === bars.length - 1) st.setEndBarType(VF.Barline.type.END);
+    st.setContext(ctx).draw();
+    const notes = bar.map((n) => {
+      const d = VF_DUR[n.beats];
+      const sn = n.rest
+        ? new VF.StaveNote({ clef, keys: [clef === 'bass' ? 'd/3' : 'b/4'], duration: d + 'r' })
+        : new VF.StaveNote({ clef, keys: [spell(seg.root, n.semi)], duration: d, auto_stem: true });
+      if (d.endsWith('d')) VF.Dot.buildAndAttach([sn], { all: true });
+      if (!n.rest) {
+        const word = Array.isArray(ex.lyric) ? ex.lyric[sungIndex] : (sungIndex === 0 ? ex.lyric : null);
+        if (word) {
+          const a = new VF.Annotation(word).setVerticalJustification(VF.Annotation.VerticalJustify.BOTTOM);
+          a.setFont('Atkinson Hyperlegible, sans-serif', 12);
+          sn.addModifier(a, 0);
+        }
+        sungIndex++;
+      }
+      vfNotes.push({ sn, n });
+      return sn;
+    });
+    const beams = VF.Beam.generateBeams(notes, { groups: [new VF.Fraction(1, 4)] });
+    const voice = new VF.Voice({ num_beats: ex.bar, beat_value: 4 }).addTickables(notes);
+    VF.Accidental.applyAccidentals([voice], key);
+    new VF.Formatter().joinVoices([voice]).format([voice], st.getNoteEndX() - st.getNoteStartX() - 10);
+    voice.draw(ctx, st);
+    beams.forEach((b) => b.setContext(ctx).draw());
+    x += w;
+  });
+  // Slides: a straight line from one note head to the next (a glissando).
+  vfNotes.forEach(({ sn, n }, i) => {
+    const next = vfNotes[i + 1];
+    if (!n.slide || !next) return;
+    const x1 = sn.getAbsoluteX() + sn.getGlyphWidth() + 4, y1 = sn.getYs()[0];
+    const x2 = next.sn.getAbsoluteX() - 4, y2 = next.sn.getYs()[0];
+    ctx.save(); ctx.setLineWidth(1.6);
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.restore();
+  });
+  noteEls = [...scoreEl.querySelectorAll('.vf-stavenote')];
+}
+
+function drawBreath(seg) {
+  scoreEl.replaceChildren();
+  noteEls = []; litNote = -1;
+  const box = document.createElement('div');
+  box.className = 'breath';
+  const row = (label, n) => {
+    const d = document.createElement('div');
+    d.className = 'breath-row';
+    const b = document.createElement('b');
+    b.textContent = label;
+    d.append(b);
+    for (let i = 1; i <= n; i++) { const c = document.createElement('span'); c.textContent = i; d.append(c); noteEls.push(c); }
+    return d;
+  };
+  box.append(row('In', 4), row('Hiss', seg.count));
+  scoreEl.append(box);
+}
+
+function segAt(time) {
+  const segs = state.plan.segs, ci = chapterAt(time);
+  let found = null;
+  for (const sg of segs) { if (sg.t0 <= time) found = sg; else break; }
+  // In the gap before an exercise's first key, show what's coming.
+  if (!found || found.ch !== ci) found = segs.find((sg) => sg.ch === ci) || null;
+  return found;
+}
+
+function updateScore(force) {
+  if (!state.plan) return;
+  const time = audio.currentTime || 0, seg = segAt(time);
+  if (!seg) { scoreEl.replaceChildren(); shown = null; $('score-cap').textContent = ''; return; }
+  if (seg !== shown || force) {
+    shown = seg;
+    if (seg.type === 'key') {
+      drawKey(seg);
+      const name = KEY_NAMES[seg.root % 12].replace('b', '♭').replace('#', '♯');
+      $('score-cap').textContent = `${name} major · ♩ = ${seg.ex.bpm}`;
+    } else {
+      drawBreath(seg);
+      $('score-cap').textContent = 'One count per second';
+    }
+  }
+  // Which note (or breath count) is sounding now.
+  let lit = -1;
+  if (seg.type === 'key') {
+    lit = seg.notes.findIndex((n) => !n.rest && time >= n.t0 && time < n.t1);
+  } else if (time >= seg.t0) {
+    const s = time - seg.t0;
+    if (s < 4) lit = Math.floor(s);
+    else if (s < 4 + seg.count) lit = 4 + Math.floor(s - 4);
+  }
+  if (lit !== litNote) {
+    noteEls[litNote]?.classList.remove('on');
+    noteEls[lit]?.classList.add('on');
+    litNote = lit;
+  }
+}
+
+let raf = 0;
+function loop() {
+  updateScore();
+  raf = !audio.paused && document.visibilityState === 'visible' ? requestAnimationFrame(loop) : 0;
+}
+function startLoop() { if (!raf) raf = requestAnimationFrame(loop); }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !audio.paused) startLoop(); });
+new ResizeObserver(() => { if (shown && scoreEl.clientWidth !== lastWidth) updateScore(true); }).observe(scoreEl);
 
 function setMeta(ch) {
   if (!('mediaSession' in navigator)) return;
@@ -352,7 +555,11 @@ audio.addEventListener('ended', () => { audio.currentTime = 0; tick(); });
 function markSeg() {
   document.querySelectorAll('[data-voice]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.voice === state.voice));
   document.querySelectorAll('[data-length]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.length === state.length));
+  document.querySelectorAll('[data-click]').forEach((b) => b.setAttribute('aria-pressed', state.click));
 }
+document.querySelectorAll('[data-click]').forEach((b) => b.addEventListener('click', () => {
+  state.click = !state.click; store.set('click', state.click ? 'on' : 'off'); markSeg(); prepare();
+}));
 document.querySelectorAll('[data-voice]').forEach((b) => b.addEventListener('click', () => {
   if (state.voice === b.dataset.voice) return;
   state.voice = b.dataset.voice; store.set('voice', state.voice); markSeg(); prepare();

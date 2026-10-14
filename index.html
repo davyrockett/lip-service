@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lip Service</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png?v=2">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Lip Service">
@@ -30,19 +30,19 @@ applyTheme(savedTheme());
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <style>
 :root {
-  --bg:#F1F0EC; --surface:#FFFFFF; --sunk:#E7E5DF; --ink:#1E1B18; --muted:#635D55; --line:#D8D4CC;
-  --accent:#D47B22; --accent-ink:#8C4A0A; --accent-soft:#F6E3CC;
+  --bg:#F1F0EC; --surface:#FFFFFF; --sunk:#E7E5DF; --ink:#1E1B18; --muted:#676767; --line:#D8D4CC;
+  --accent:#F57C14; --accent-ink:#9A4204; --accent-soft:#FDE3CC;
   --f-display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
   --f-body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme]) {
-  --bg:#151310; --surface:#201C18; --sunk:#2A2520; --ink:#F0EBE3; --muted:#A79E92; --line:#3B342D;
-  --accent:#EE9A45; --accent-ink:#F5BE85; --accent-soft:#3B2A19; color-scheme: dark;
+  --bg:#151310; --surface:#201C18; --sunk:#2A2520; --ink:#F0EBE3; --muted:#A3A3A3; --line:#3B342D;
+  --accent:#FF9433; --accent-ink:#FFBD85; --accent-soft:#422712; color-scheme: dark;
 } }
 :root[data-theme="dark"] {
-  --bg:#151310; --surface:#201C18; --sunk:#2A2520; --ink:#F0EBE3; --muted:#A79E92; --line:#3B342D;
-  --accent:#EE9A45; --accent-ink:#F5BE85; --accent-soft:#3B2A19; color-scheme: dark;
+  --bg:#151310; --surface:#201C18; --sunk:#2A2520; --ink:#F0EBE3; --muted:#A3A3A3; --line:#3B342D;
+  --accent:#FF9433; --accent-ink:#FFBD85; --accent-soft:#422712; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -61,11 +61,18 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 
 /* Voice and length switches: same pill style as Page Fright's Read | Improv switch */
 .choices { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; margin-bottom: 8px; }
-.views { display: inline-flex; gap: 2px; padding: 4px; border-radius: 999px; background: var(--sunk); border: 1px solid var(--line); }
+.views { display: inline-flex; gap: 2px; padding: 4px; border-radius: 999px; background: var(--sunk); border: 1px solid var(--line);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.12), inset 0 -1px 0 rgba(255,255,255,.5); }
 .views button { border: 0; background: transparent; border-radius: 999px; padding: 8px 20px; font-size: 16px; font-weight: 700;
   line-height: 1.2; color: var(--muted); cursor: pointer; touch-action: manipulation; }
 .views button:hover { color: var(--ink); }
-.views button[aria-pressed="true"] { background: var(--accent); color: #1E1B18; box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+.views button[aria-pressed="true"] { background: var(--accent); color: #1E1B18;
+  box-shadow: 0 2px 5px rgba(0,0,0,.25), 0 1px 1px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(0,0,0,.12); }
+:root[data-theme="dark"] .views { box-shadow: inset 0 2px 5px rgba(0,0,0,.5), inset 0 -1px 0 rgba(255,255,255,.04); }
+:root[data-theme="dark"] .views button[aria-pressed="true"] { box-shadow: 0 2px 6px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 0 rgba(0,0,0,.15); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .views { box-shadow: inset 0 2px 5px rgba(0,0,0,.5), inset 0 -1px 0 rgba(255,255,255,.04); }
+  :root:not([data-theme]) .views button[aria-pressed="true"] { box-shadow: 0 2px 6px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 0 rgba(0,0,0,.15); } }
 .views button:disabled { cursor: default; }
 .views button:disabled:not([aria-pressed="true"]) { opacity: .5; }
 @media (max-width: 420px) { .choices { gap: 8px; } .views button { padding: 8px 13px; } }
@@ -73,14 +80,30 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .player { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
 .now-cap { margin: 0; font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
 .now { font-size: 2.1rem; margin: 2px 0 6px; min-height: 1.02em; }
-.now-how { margin: 0 0 14px; font-size: 1.05rem; min-height: 4.6em; }
+.now-how { margin: 0 0 10px; font-size: 1.05rem; min-height: 4.6em; }
+/* The notation. VexFlow draws in black; these rules recolor it to the theme (same as Page Fright). */
+.score-cap { margin: 0; color: var(--muted); font-size: .85rem; min-height: 1.3em; }
+.score { height: 140px; margin: 0 -6px 10px; overflow: hidden; }
+.score svg { display: block; max-width: 100%; height: auto; }
+.score svg, .score svg [fill]:not([fill="none"]) { fill: var(--ink); }
+.score svg, .score svg [stroke]:not([stroke="none"]) { stroke: var(--ink); }
+.score svg text { fill: var(--muted); stroke: none; }
+.score .vf-stavenote.on, .score .vf-stavenote.on [fill]:not([fill="none"]) { fill: var(--accent); }
+.score .vf-stavenote.on, .score .vf-stavenote.on [stroke]:not([stroke="none"]) { stroke: var(--accent); }
+.score .vf-stavenote.on text { fill: var(--accent); }
+.breath { height: 100%; display: grid; align-content: center; gap: 8px; padding: 0 6px; }
+.breath-row { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
+.breath-row b { flex-basis: 100%; font-family: var(--f-display); font-size: 1.25rem; line-height: 1.1; text-transform: uppercase; }
+.breath-row span { width: 21px; height: 21px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  font-size: .72rem; color: var(--muted); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.breath-row span.on { background: var(--accent); border-color: var(--accent); color: #1E1B18; font-weight: 700; }
 input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
 .time { display: flex; justify-content: space-between; color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; margin-top: 2px; }
 .controls { display: grid; grid-template-columns: 64px 1fr 64px; gap: 10px; margin-top: 14px; }
 .ctl { height: 64px; border-radius: 14px; border: 1px solid var(--line); background: var(--sunk); cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 10px; }
 .ctl svg { width: 26px; height: 26px; fill: currentColor; }
-.ctl.play { white-space: nowrap; background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; font-size: 1.15rem; }
+.ctl.play { white-space: nowrap; background: var(--accent); border-color: var(--accent); color: #1E1B18; font-weight: 700; font-size: 1.15rem; }
 .ctl.play svg { width: 30px; height: 30px; }
 .ctl:disabled { opacity: .6; cursor: default; }
 .settings-note { margin: 10px 0 0; color: var(--muted); font-size: .85rem; text-align: center; min-height: 1.3em; }
@@ -114,7 +137,7 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 .btn { font-size: .95rem; font-weight: 700; border-radius: 8px; padding: 8px 14px; cursor: pointer;
   border: 1px solid var(--line); background: var(--surface); }
 .btn:disabled { opacity: .6; cursor: default; }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #1E1B18; }
 /* Settings switch */
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
 .seg button { border: 0; background: none; padding: 7px 12px; font-size: .9rem; font-weight: 700; cursor: pointer; }
@@ -146,6 +169,9 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
       <button type="button" data-length="short">Short</button>
       <button type="button" data-length="full">Full</button>
     </div>
+    <div class="views" role="group" aria-label="Metronome">
+      <button type="button" data-click>Metronome</button>
+    </div>
   </div>
   <p class="summary" id="summary"></p>
 
@@ -153,6 +179,8 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
     <p class="now-cap">Now</p>
     <h2 class="now" id="now" style="margin-top:2px">&nbsp;</h2>
     <p class="now-how" id="now-how"></p>
+    <p class="score-cap" id="score-cap"></p>
+    <div class="score" id="score"></div>
     <input type="range" id="seek" min="0" max="1" step="0.1" value="0" aria-label="Position">
     <div class="time"><span id="time">0:00 / 0:00</span></div>
     <div class="controls">
@@ -175,7 +203,7 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 
   <div class="tip">
     <p>Start it before you pull out. It keeps playing with the phone locked, through Bluetooth or CarPlay (it shows up in Now Playing), and the car's skip buttons jump between exercises.</p>
-    <p>A soft chime marks each new exercise. Each key starts with a chord, then plays the notes for you to sing along with, a half step higher each time. Read through the exercises before you go.</p>
+    <p>A soft chime marks each new exercise. Each key starts with a bar of its chord, then plays the notes for you to sing along with (the current note lights up), a half step higher each time. Read through the exercises before you go.</p>
   </div>
 </div>
 
@@ -195,6 +223,7 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 
 <div class="update" id="update-banner" role="status" hidden><span>A new version is ready.</span><button type="button" class="btn primary" id="update-btn">Update</button></div>
 
+<script src="vendor/vexflow-bravura.js"></script>
 <script src="app.js"></script>
 <script>
 // Settings: appearance and app updates (saved on this device).
@@ -238,7 +267,7 @@ $('set-update').addEventListener('click', async () => {
 <script>
 // Offline support + updates. See sw.js.
 // The version shown in Settings. tools/bump.sh keeps this in step with VERSION in sw.js.
-window.APP_VERSION = 'v2';
+window.APP_VERSION = 'v3';
 (async () => {
   if (!('serviceWorker' in navigator)) return;
   const reg = await navigator.serviceWorker.register('sw.js');

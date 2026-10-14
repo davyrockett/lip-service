@@ -2,7 +2,7 @@
 //
 // IMPORTANT: whenever any file below changes, bump VERSION.
 // That is how phones and iPads learn there's an update to download.
-const VERSION = 'v2';
+const VERSION = 'v3';
 const CACHE = `warmup-${VERSION}`;
 const FONTS = 'warmup-fonts';
 
@@ -10,6 +10,7 @@ const ASSETS = [
   './',
   './index.html',
   './app.js',
+  './vendor/vexflow-bravura.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',

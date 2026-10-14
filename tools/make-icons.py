@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw
 
 OUT = Path(__file__).resolve().parent.parent / "icons"
 BG = (21, 19, 16)          # dark brown page background
-ACCENT = (238, 154, 69)    # orange
+ACCENT = (255, 148, 51)    # the app's orange (dark-mode shade, same as Page Fright)
 CREAM = (240, 235, 227)
 
 
