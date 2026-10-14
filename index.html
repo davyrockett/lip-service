@@ -74,8 +74,11 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   :root:not([data-theme]) .views { box-shadow: inset 0 2px 5px rgba(0,0,0,.5), inset 0 -1px 0 rgba(255,255,255,.04); }
   :root:not([data-theme]) .views button[aria-pressed="true"] { box-shadow: 0 2px 6px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 0 rgba(0,0,0,.15); } }
 .views button:disabled { cursor: default; }
+.views .icon-pill { padding: 6px 14px; display: inline-flex; align-items: center; }
+.views .icon-pill svg { display: block; }
 .views button:disabled:not([aria-pressed="true"]) { opacity: .5; }
 @media (max-width: 420px) { .choices { gap: 8px; } .views button { padding: 8px 13px; } }
+@media (max-width: 400px) { .choices { gap: 6px; } .views button { padding: 8px 9px; } .views .icon-pill { padding: 6px 10px; } }
 .summary { margin: 0 0 18px; color: var(--muted); font-size: .9rem; min-height: 1.5em; }
 .player { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
 .now-cap { margin: 0; font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
@@ -170,7 +173,9 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
       <button type="button" data-length="full">Full</button>
     </div>
     <div class="views" role="group" aria-label="Metronome">
-      <button type="button" data-click>Metronome</button>
+      <button type="button" class="icon-pill" data-click aria-label="Metronome" title="Metronome">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.2 3h5.6l4.2 18H5z"/><path d="M6.6 15h10.8"/><path d="M12 15l5-9"/><circle cx="16.2" cy="7.4" r="1.3" fill="currentColor"/></svg>
+      </button>
     </div>
   </div>
   <p class="summary" id="summary"></p>
@@ -267,7 +272,7 @@ $('set-update').addEventListener('click', async () => {
 <script>
 // Offline support + updates. See sw.js.
 // The version shown in Settings. tools/bump.sh keeps this in step with VERSION in sw.js.
-window.APP_VERSION = 'v3';
+window.APP_VERSION = 'v4';
 (async () => {
   if (!('serviceWorker' in navigator)) return;
   const reg = await navigator.serviceWorker.register('sw.js');

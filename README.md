@@ -7,8 +7,8 @@ On iPhone: open it in Safari → Share → **Add to Home Screen**. After that it
 
 ## Using it
 
-1. Pick **Baritone** or **Tenor**, **Short** (about 4 min) or **Full** (about 10 min), and turn the
-   **Metronome** on if you want a click on every beat.
+1. Pick **Baritone** or **Tenor**, **Short** (about 4 min) or **Full** (about 10 min), and tap the
+   **metronome icon** if you want a click on every beat.
 2. Tap **Start** before you pull out, then lock the phone.
 3. It plays through Bluetooth or CarPlay (it shows up in **Now Playing**). The car's or headphones'
    **skip buttons** jump to the next or previous exercise.
