@@ -46,6 +46,13 @@ const EXERCISES = [
   { id: 'yah', name: 'Yah arpeggios', what: '“Yah” on 1-3-5-3-1', root: 45, bpm: 120, bar: 4, lyric: 'yah', full: true,
     notes: [[0, 1], [4, 1], [7, 1], [4, 1], [0, 2]], keys: { full: 9 },
     how: 'Sing “yah” on each note, up and back down. Let your jaw hang loose.' },
+  { id: 'stac', name: 'Staccato', what: 'Short “ha” on 1-3-5-3-1', root: 45, bpm: 112, bar: 4, staccato: true,
+    lyric: ['ha', 'ha', 'ha', 'ha', 'ha'],
+    notes: [[0, 1], [4, 1], [7, 1], [4, 1], [0, 1]], keys: { short: 5, full: 8 },
+    how: 'Short, bouncy “ha” on each note, like a gentle laugh. Let your belly pulse each one; no squeezing in the throat.' },
+  { id: 'agility', name: 'Agility', what: '“Lah” in rolling steps, 1-3-2-4-3-5-4-2-1', root: 45, bpm: 96, bar: 4, lyric: 'lah',
+    notes: [[0, .5], [4, .5], [2, .5], [5, .5], [4, .5], [7, .5], [5, .5], [2, .5], [0, 2]], keys: { short: 5, full: 8 },
+    how: 'Light and quick on “lah”: step up through the pattern and back down. Keep it small and easy; clean notes beat loud ones.' },
 ];
 
 const store = {
@@ -134,7 +141,8 @@ function plan(voice, length, click) {
       for (let i = 0; i < notes.length; i++) {
         const n = notes[i];
         if (n.rest) continue;
-        if (!n.slide) { ev.push({ t: n.t0, type: 'note', midi: n.midi, dur: n.t1 - n.t0 }); continue; }
+        // Staccato notes sound for just over a third of the beat.
+        if (!n.slide) { ev.push({ t: n.t0, type: 'note', midi: n.midi, dur: (n.t1 - n.t0) * (ex.staccato ? 0.35 : 1) }); continue; }
         const path = [];
         let j = i;
         for (; notes[j].slide; j++) {
@@ -423,6 +431,9 @@ function drawKey(seg) {
       if (d.endsWith('d')) VF.Dot.buildAndAttach([sn], { all: true });
       if (!n.rest) {
         const word = Array.isArray(ex.lyric) ? ex.lyric[sungIndex] : (sungIndex === 0 ? ex.lyric : null);
+        // Staccato dot on the notehead side (opposite the stem).
+        if (ex.staccato) sn.addModifier(new VF.Articulation('a.').setPosition(
+          sn.getStemDirection() === VF.Stem.UP ? VF.Modifier.Position.BELOW : VF.Modifier.Position.ABOVE), 0);
         if (word) {
           const a = new VF.Annotation(word).setVerticalJustification(VF.Annotation.VerticalJustify.BOTTOM);
           a.setFont('Atkinson Hyperlegible, sans-serif', 12);

@@ -32,6 +32,8 @@ Breathing: breathe in while a soft chord swells, then hiss through the ticks unt
 | NG slides (Full) | "ng" slide up a fifth and back |
 | Vowels | mee may mah moh moo, 5 notes down |
 | Yah arpeggios (Full) | 1-3-5-3-1 |
+| Staccato | short “ha” on 1-3-5-3-1 |
+| Agility | “lah”, 1-3-2-4-3-5-4-2-1 in eighth notes |
 
 The note range for each exercise is listed in the app. Tenor is 3 half steps above baritone, alto 10, soprano 15.
 
