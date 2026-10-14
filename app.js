@@ -9,10 +9,10 @@ const $ = (id) => document.getElementById(id);
 // Baritone reads bass clef; tenor reads treble clef an octave down (written an octave up, with the little 8 under
 // the clef); alto and soprano read treble clef at pitch.
 const VOICES = {
-  soprano: { name: 'Soprano', shift: 15, clef: 'treble' },
-  alto: { name: 'Alto', shift: 10, clef: 'treble' },
-  tenor: { name: 'Tenor', shift: 3, clef: 'treble8vb' },
   baritone: { name: 'Baritone', shift: 0, clef: 'bass' },
+  tenor: { name: 'Tenor', shift: 3, clef: 'treble8vb' },
+  alto: { name: 'Alto', shift: 10, clef: 'treble' },
+  soprano: { name: 'Soprano', shift: 15, clef: 'treble' },
 };
 const LENGTHS = { short: 'Short', full: 'Full' };
 

@@ -2,7 +2,7 @@
 //
 // IMPORTANT: whenever any file below changes, bump VERSION.
 // That is how phones and iPads learn there's an update to download.
-const VERSION = 'v6';
+const VERSION = 'v7';
 const CACHE = `warmup-${VERSION}`;
 const FONTS = 'warmup-fonts';
 

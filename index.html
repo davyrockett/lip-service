@@ -165,10 +165,10 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 
   <div class="choices">
     <div class="views" role="group" aria-label="Voice type">
-      <button type="button" data-voice="soprano">Soprano</button>
-      <button type="button" data-voice="alto">Alto</button>
-      <button type="button" data-voice="tenor">Tenor</button>
       <button type="button" data-voice="baritone">Baritone</button>
+      <button type="button" data-voice="tenor">Tenor</button>
+      <button type="button" data-voice="alto">Alto</button>
+      <button type="button" data-voice="soprano">Soprano</button>
     </div>
     <div class="views" role="group" aria-label="Length">
       <button type="button" data-length="short">Short</button>
@@ -274,7 +274,7 @@ $('set-update').addEventListener('click', async () => {
 <script>
 // Offline support + updates. See sw.js.
 // The version shown in Settings. tools/bump.sh keeps this in step with VERSION in sw.js.
-window.APP_VERSION = 'v6';
+window.APP_VERSION = 'v7';
 (async () => {
   if (!('serviceWorker' in navigator)) return;
   const reg = await navigator.serviceWorker.register('sw.js');
