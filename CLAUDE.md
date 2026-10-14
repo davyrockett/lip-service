@@ -33,6 +33,8 @@ concrete. Likes to see things working: verify before saying "done".
 - Keep screens uncluttered: show extra controls only when they're relevant.
 - Nothing should jump around: when a control doesn't apply, grey it out in place rather than hiding it, and
   reserve space for things that appear, so other controls never shift.
+- **No AI voices, ever:** no text-to-speech or synthesised singing in any app. Use written instructions on
+  screen, and instrument or synth sounds for audio.
 - Commit messages: a short, plain description of the change.
 - When renaming or moving an app, keep the old address working with a redirect repo.
 
@@ -46,13 +48,14 @@ with this section (copy it from any other app) plus an "## This app" section.
 **Lip Service**: a gentle vocal warm-up David plays in the car on the way to gigs (Bluetooth / CarPlay audio).
 Repo `vocal-warmup`. Live: https://davyrockett.github.io/vocal-warmup/ See README.md for features.
 
-- **How it works:** `app.js` renders the whole routine (spoken instructions + synthesised piano guide notes) into
+- **How it works:** `app.js` renders the whole routine (warm-synth guide notes, chimes, breathing ticks) into
   one WAV track in the browser, played by an `<audio>` element. That's what keeps it playing with the phone locked
   and shows it in CarPlay's Now Playing. Media Session next/previous jump between exercises (chapters).
   Don't switch to live Web Audio playback: iOS stops that when the screen locks.
 - **Exercises** live in the `EXERCISES` list in `app.js` (notes as [semitones above the key, beats], or glides).
   Baritone starts from the listed `root`; tenor is 3 semitones higher (`VOICES`). Keep everything gentle.
-- **Spoken clips** are in `voice/*.m4a`, made with the Mac's Samantha voice by `tools/make-voice.sh` (Mac only).
-  A new clip must also be added to `CLIP_NAMES` in `app.js` and to `ASSETS` in `sw.js`.
+- **No voice, ever** (David's rule): no spoken or sung audio. Instructions are written (`how` on each exercise,
+  shown in the player card); the audio is only synth tones. A chime marks each new exercise.
+- The voice and length switches copy Page Fright's Read | Improv pill switch (`.views`).
 - **Publish:** run `tools/bump.sh` (bumps `sw.js` and index.html together), commit, push, confirm live.
 - **Test locally:** `Start Lip Service.command`, or `python3 -m http.server 8772` here and open http://localhost:8772/.

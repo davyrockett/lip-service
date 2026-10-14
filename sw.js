@@ -2,7 +2,7 @@
 //
 // IMPORTANT: whenever any file below changes, bump VERSION.
 // That is how phones and iPads learn there's an update to download.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = `warmup-${VERSION}`;
 const FONTS = 'warmup-fonts';
 
@@ -11,19 +11,6 @@ const ASSETS = [
   './index.html',
   './app.js',
   './manifest.webmanifest',
-  './voice/intro.m4a',
-  './voice/breath.m4a',
-  './voice/in.m4a',
-  './voice/hiss.m4a',
-  './voice/relax.m4a',
-  './voice/hum.m4a',
-  './voice/trill.m4a',
-  './voice/siren.m4a',
-  './voice/sigh.m4a',
-  './voice/ng.m4a',
-  './voice/vowels.m4a',
-  './voice/yah.m4a',
-  './voice/outro.m4a',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',

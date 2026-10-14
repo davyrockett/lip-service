@@ -59,21 +59,21 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .icon-btn { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0;
   border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--muted); cursor: pointer; }
 
-.choices { display: grid; gap: 10px; margin-bottom: 18px; }
-.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--line); border-radius: 12px;
-  overflow: hidden; background: var(--surface); }
-.seg button { border: 0; background: none; padding: 12px 8px; cursor: pointer; font-weight: 700; font-size: 1.05rem;
-  display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
-.seg button + button { border-left: 1px solid var(--line); }
-.seg button small { font-weight: 400; font-size: .8rem; color: var(--muted); min-height: 1.2em; }
-.seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
-.seg button[aria-pressed="true"] small { color: #fff; opacity: .9; }
-.seg button:disabled { cursor: default; opacity: .55; }
-.seg button[aria-pressed="true"]:disabled { opacity: .8; }
-
+/* Voice and length switches: same pill style as Page Fright's Read | Improv switch */
+.choices { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; margin-bottom: 8px; }
+.views { display: inline-flex; gap: 2px; padding: 4px; border-radius: 999px; background: var(--sunk); border: 1px solid var(--line); }
+.views button { border: 0; background: transparent; border-radius: 999px; padding: 8px 20px; font-size: 16px; font-weight: 700;
+  line-height: 1.2; color: var(--muted); cursor: pointer; touch-action: manipulation; }
+.views button:hover { color: var(--ink); }
+.views button[aria-pressed="true"] { background: var(--accent); color: #1E1B18; box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+.views button:disabled { cursor: default; }
+.views button:disabled:not([aria-pressed="true"]) { opacity: .5; }
+@media (max-width: 420px) { .choices { gap: 8px; } .views button { padding: 8px 13px; } }
+.summary { margin: 0 0 18px; color: var(--muted); font-size: .9rem; min-height: 1.5em; }
 .player { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
 .now-cap { margin: 0; font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-.now { font-size: 2.1rem; margin: 2px 0 10px; min-height: 1.02em; }
+.now { font-size: 2.1rem; margin: 2px 0 6px; min-height: 1.02em; }
+.now-how { margin: 0 0 14px; font-size: 1.05rem; min-height: 4.6em; }
 input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
 .time { display: flex; justify-content: space-between; color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; margin-top: 2px; }
 .controls { display: grid; grid-template-columns: 64px 1fr 64px; gap: 10px; margin-top: 14px; }
@@ -115,7 +115,11 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
   border: 1px solid var(--line); background: var(--surface); }
 .btn:disabled { opacity: .6; cursor: default; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.seg.small button { padding: 7px 12px; font-size: .9rem; }
+/* Settings switch */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 7px 12px; font-size: .9rem; font-weight: 700; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #1E1B18; }
 .update { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
   display: flex; gap: 12px; align-items: center; padding: 8px 8px 8px 16px; border-radius: 12px;
   background: var(--ink); color: var(--bg); box-shadow: 0 6px 24px rgb(0 0 0 / .25); white-space: nowrap; }
@@ -134,19 +138,21 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
   </header>
 
   <div class="choices">
-    <div class="seg" role="group" aria-label="Voice type">
-      <button type="button" data-voice="baritone">Baritone<small></small></button>
-      <button type="button" data-voice="tenor">Tenor<small></small></button>
+    <div class="views" role="group" aria-label="Voice type">
+      <button type="button" data-voice="baritone">Baritone</button>
+      <button type="button" data-voice="tenor">Tenor</button>
     </div>
-    <div class="seg" role="group" aria-label="Length">
-      <button type="button" data-length="short">Short<small></small></button>
-      <button type="button" data-length="full">Full<small></small></button>
+    <div class="views" role="group" aria-label="Length">
+      <button type="button" data-length="short">Short</button>
+      <button type="button" data-length="full">Full</button>
     </div>
   </div>
+  <p class="summary" id="summary"></p>
 
   <section class="player" aria-label="Player">
     <p class="now-cap">Now</p>
     <h2 class="now" id="now" style="margin-top:2px">&nbsp;</h2>
+    <p class="now-how" id="now-how"></p>
     <input type="range" id="seek" min="0" max="1" step="0.1" value="0" aria-label="Position">
     <div class="time"><span id="time">0:00 / 0:00</span></div>
     <div class="controls">
@@ -169,7 +175,7 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 
   <div class="tip">
     <p>Start it before you pull out. It keeps playing with the phone locked, through Bluetooth or CarPlay (it shows up in Now Playing), and the car's skip buttons jump between exercises.</p>
-    <p>Each key starts with a chord, then plays the notes for you to sing along with, a half step higher each time.</p>
+    <p>A soft chime marks each new exercise. Each key starts with a chord, then plays the notes for you to sing along with, a half step higher each time. Read through the exercises before you go.</p>
   </div>
 </div>
 
@@ -180,7 +186,7 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
     <div class="dlg-head"><h2>Settings</h2><button type="button" class="icon-btn" id="settings-close" aria-label="Close">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="set-row"><div><b>Appearance</b><p class="cap">Auto follows your device's light or dark setting.</p></div>
-      <div class="seg small" role="group" aria-label="Appearance">
+      <div class="seg" role="group" aria-label="Appearance">
         <button type="button" data-theme-v="light">Light</button><button type="button" data-theme-v="dark">Dark</button><button type="button" data-theme-v="auto">Auto</button>
       </div></div>
     <div class="set-row"><div><b>App version</b><p class="cap" id="ver-line"></p></div><button type="button" class="btn" id="set-update">Check for updates</button></div>
@@ -232,7 +238,7 @@ $('set-update').addEventListener('click', async () => {
 <script>
 // Offline support + updates. See sw.js.
 // The version shown in Settings. tools/bump.sh keeps this in step with VERSION in sw.js.
-window.APP_VERSION = 'v1';
+window.APP_VERSION = 'v2';
 (async () => {
   if (!('serviceWorker' in navigator)) return;
   const reg = await navigator.serviceWorker.register('sw.js');

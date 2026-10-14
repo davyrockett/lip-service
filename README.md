@@ -7,13 +7,15 @@ On iPhone: open it in Safari → Share → **Add to Home Screen**. After that it
 
 ## Using it
 
-1. Pick **Baritone** or **Tenor**, and **Short** (about 4 min) or **Full** (about 8 min).
+1. Pick **Baritone** or **Tenor**, and **Short** (about 3 min) or **Full** (about 8 min).
 2. Tap **Start** before you pull out, then lock the phone.
 3. It plays through Bluetooth or CarPlay (it shows up in **Now Playing**). The car's or headphones'
    **skip buttons** jump to the next or previous exercise.
 
-Each exercise starts with spoken instructions. Then, for each key, you hear a chord, then the notes to sing
-along with, a half step higher each time. Full climbs higher and then comes back down a few keys.
+There's no voice: the instructions for each exercise are written on screen (read them before you go).
+A soft chime marks each new exercise. Then, for each key, you hear a chord on a warm synth, then the notes to
+sing along with, a half step higher each time. Full climbs higher and then comes back down a few keys.
+Breathing: breathe in while a soft chord swells, then hiss through the ticks until the high tick.
 
 ## The exercises
 
@@ -40,4 +42,4 @@ Older iPhones sometimes pause Home Screen apps when locked. Open the link in Saf
 
 ## For changes
 
-See `CLAUDE.md`. Spoken instructions are recorded on the Mac by `tools/make-voice.sh`.
+See `CLAUDE.md`.
