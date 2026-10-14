@@ -11,7 +11,8 @@ const LENGTHS = { short: 'Short', full: 'Full' };
 
 // Each exercise is written on a beat grid so the notation, the highlight and the metronome line up.
 // notes: [semitones above the key, beats (1 = quarter note), slide into the next note?]
-// Each key starts with one bar of the key's chord, then the pattern; the last bar is filled with rest.
+// Everything is in 4/4 and the keys follow each other with no break, so the pulse never stops; each pattern
+// ends with rest to fill its last bar (that's the breath). A count-in bar starts each exercise.
 // keys = how many keys it climbs by half steps; Full also comes back down a few keys at the end.
 const EXERCISES = [
   { id: 'breath', name: 'Breathing', what: 'In for 4, hiss out for the count', breath: { short: [8, 10], full: [8, 10, 12] },
@@ -19,14 +20,14 @@ const EXERCISES = [
   { id: 'hum', name: 'Humming', what: 'Hum on “mm”, 5 notes down', root: 45, bpm: 120, bar: 4, lyric: 'mm',
     notes: [[7, 1], [5, 1], [4, 1], [2, 1], [0, 2]], keys: { short: 6, full: 8 },
     how: 'Lips closed, teeth apart, hum on “mm”. Follow the notes down and feel the buzz on your lips.' },
-  { id: 'trill', name: 'Lip trills', what: '5 notes up and back down', root: 43, bpm: 96, bar: 2, lyric: 'brr',
+  { id: 'trill', name: 'Lip trills', what: '5 notes up and back down', root: 43, bpm: 96, bar: 4, lyric: 'brr',
     notes: [[0, .5], [2, .5], [4, .5], [5, .5], [7, .5], [5, .5], [4, .5], [2, .5], [0, 2]], keys: { short: 8, full: 12 },
     how: 'Loose lips: blow through them like a motorboat, 5 notes up and back down. If your lips won’t buzz, hum it instead.' },
   { id: 'siren', name: 'Lip trill sirens', what: 'Slide up an octave and back', root: 45, bpm: 96, bar: 4, lyric: 'brr',
     notes: [[0, 2, true], [12, 2, true], [0, 2]], keys: { short: 5, full: 8 },
     how: 'Keep the lip trill going and slide smoothly up to the top note and back down. Easy at the top: don’t push.' },
   { id: 'sigh', name: 'Sighs', what: 'Breathy “hoo”, slide down an octave', root: 43, bpm: 96, bar: 4, lyric: 'hoo',
-    notes: [[12, 2, true], [0, 2]], keys: { short: 4, full: 6 },
+    notes: [[12, 2, true], [0, 1]], keys: { short: 4, full: 6 },
     how: 'On a breathy “hoo”, start high and slide gently down, like a big sigh of relief.' },
   { id: 'ng', name: 'NG slides', what: '“Sing” the ng, slide up a fifth and back', root: 45, bpm: 100, bar: 4, lyric: 'ng', full: true,
     notes: [[0, 2, true], [7, 2, true], [0, 2]], keys: { full: 8 },
@@ -84,7 +85,7 @@ function plan(voice, length, click) {
     chapters.push(ch);
     // A soft two-note chime marks each new exercise, then a moment to get ready.
     ev.push({ t: t + 0.3, type: 'chime' });
-    t += 3.5;
+    t += ex.breath ? 3.5 : 1.5;
 
     if (ex.breath) {
       const rounds = ex.breath[length];
@@ -109,10 +110,11 @@ function plan(voice, length, click) {
     ch.detail = `${roots.length} keys · ${midiName(lo)}–${midiName(hi)}`;
     range[0] = Math.min(range[0], lo); range[1] = Math.max(range[1], hi);
     ch.bpm = ex.bpm;
+    // Count-in bar (clicks only when the metronome is on), then straight into the first key.
+    if (click) for (let b = 0; b < ex.bar; b++) ev.push({ t: t + b * beat, type: 'click', down: b === 0 });
+    t += ex.bar * beat;
     for (const root of roots) {
-      // Cue bar: the key's chord, then the pattern to sing along with.
-      const cueBeats = ex.bar, sing = t + cueBeats * beat;
-      ev.push({ t, type: 'chord', notes: [root, root + 4, root + 7], dur: beat * Math.min(2, cueBeats - 0.5) });
+      const sing = t;
       const notes = [];
       let bt = 0;
       for (const n of pattern) {
@@ -120,7 +122,7 @@ function plan(voice, length, click) {
         bt += n.beats;
       }
       const end = sing + bt * beat;
-      if (click) for (let b = 0; b < cueBeats + bt; b++) ev.push({ t: t + b * beat, type: 'click', down: b % ex.bar === 0 });
+      if (click) for (let b = 0; b < bt; b++) ev.push({ t: t + b * beat, type: 'click', down: b % ex.bar === 0 });
       // Notes that slide into the next one become one continuous glide.
       for (let i = 0; i < notes.length; i++) {
         const n = notes[i];
@@ -233,7 +235,6 @@ function render(p) {
     else if (e.type === 'click') addClick(buf, e.t, e.down);
     else if (e.type === 'chime') addChime(buf, e.t);
     else if (e.type === 'note') addNote(buf, e.t, e.midi, e.dur, 0.22);
-    else if (e.type === 'chord') e.notes.forEach((m) => addNote(buf, e.t, m, e.dur, 0.09));
     else if (e.type === 'glide') addGlide(buf, e.t, e.path, e.dur, 0.2);
     else if (e.type === 'swell') addSwell(buf, e.t, e.notes, e.dur, 0.07, e.fade);
   }

@@ -53,8 +53,8 @@ Repo `vocal-warmup`. Live: https://davyrockett.github.io/vocal-warmup/ See READM
   and shows it in CarPlay's Now Playing. Media Session next/previous jump between exercises (chapters).
   Don't switch to live Web Audio playback: iOS stops that when the screen locks.
 - **Exercises** live in the `EXERCISES` list in `app.js`, on a beat grid: `bpm`, `bar` (beats per bar),
-  notes as [semitones above the key, beats, slide-into-next?], `lyric`. Each key = one bar of chord cue, then the
-  pattern padded to whole bars. `plan()` also returns `segs` (one per key / breath round) that drive the notation.
+  notes as [semitones above the key, beats, slide-into-next?], `lyric`. Everything is 4/4 with no chord cue between keys
+  (David wants the momentum kept); each pattern is padded to whole bars and a count-in bar starts each exercise. `plan()` also returns `segs` (one per key / breath round) that drive the notation.
 - **Notation:** VexFlow (`vendor/`, same copy as Page Fright) draws the current key's pattern; the sounding note
   gets `.on` (orange), like Page Fright's Read section. Baritone = bass clef, tenor = treble 8vb.
 - **Metronome** option re-renders the track with clicks on every beat (downbeat higher).

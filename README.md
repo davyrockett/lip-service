@@ -14,8 +14,8 @@ On iPhone: open it in Safari → Share → **Add to Home Screen**. After that it
    **skip buttons** jump to the next or previous exercise.
 
 There's no voice: the instructions for each exercise are written on screen (read them before you go).
-A soft chime marks each new exercise. Then, for each key, you hear a chord on a warm synth, then the notes to
-sing along with, a half step higher each time. Full climbs higher and then comes back down a few keys.
+A soft chime marks each new exercise. After a one-bar count-in you hear the notes on a warm synth to sing along
+with, moving up a half step each time in steady 4/4 (no chord between keys). Full climbs higher and then comes back down a few keys.
 The player shows each key's notation (bass clef for baritone, tenor treble clef for tenor) with the current
 note lit up in orange, like Page Fright's Read section, plus the key and tempo. Slides are drawn as glissando lines.
 Breathing: breathe in while a soft chord swells, then hiss through the ticks until the high tick (the counts light up).
