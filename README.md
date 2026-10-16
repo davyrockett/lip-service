@@ -34,7 +34,7 @@ through, a high tick to stop, then a bar of rest, with a beat counter above. The
 | Vowels | mee may mah moh moo, 5 notes down |
 | Yah arpeggios (Full) | 1-3-5-3-1 |
 | Staccato | short “ha” on 1-3-5-3-1 |
-| Staccato steps | short “ha” in eighth notes: 1 r 1 2 3 r 3 4 5 r 3 r 1 r |
+| Staccato steps | short “ha” in eighth notes at ♩ = 175: 1 r 1 2 3 r 3 4 5 r 3 r 1 r, then 2 bars rest |
 | Agility | “lah”, 1-3-2-4-3-5-4-2-1 in eighth notes |
 
 The note range for each exercise is listed in the app. Tenor is 3 half steps above baritone and climbs 3 keys further; alto is 10 above, soprano 15.

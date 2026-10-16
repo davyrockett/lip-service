@@ -52,8 +52,8 @@ const EXERCISES = [
     lyric: ['ha', 'ha', 'ha', 'ha', 'ha'],
     notes: [[0, 1], [4, 1], [7, 1], [4, 1], [0, 1]], keys: { short: 5, full: 8 },
     how: 'Short, bouncy “ha” on each note, like a gentle laugh. Let your belly pulse each one; no squeezing in the throat.' },
-  { id: 'stac8', name: 'Staccato steps', what: 'Short “ha” in eighth notes, 1 · 1 2 3 · 3 4 5 · 3 · 1', root: 45, bpm: 100, bar: 4,
-    staccato: true, lyric: 'ha',
+  { id: 'stac8', name: 'Staccato steps', what: 'Short “ha” in eighth notes, 1 · 1 2 3 · 3 4 5 · 3 · 1', root: 45, bpm: 175, bar: 4,
+    staccato: true, lyric: 'ha', restBars: 2,
     notes: [[0, .5], [null, .5], [0, .5], [2, .5], [4, .5], [null, .5], [4, .5], [5, .5], [7, .5], [null, .5], [4, .5], [null, .5], [0, .5], [null, .5]],
     keys: { short: 5, full: 8 },
     how: 'Quick, light “ha” on each note, with a tiny breath-stop in every rest. Keep the jaw loose and let the belly bounce.' },
@@ -90,6 +90,8 @@ function barsOf(ex) {
   const notes = ex.notes.map(([semi, beats, slide]) => (semi === null ? { rest: true, beats } : { semi, beats, slide: !!slide }));
   const used = notes.reduce((a, n) => a + n.beats, 0), pad = Math.ceil(used / ex.bar) * ex.bar - used;
   if (pad) notes.push({ rest: true, beats: pad });
+  // restBars: whole bars of rest after each key (heard and counted, not drawn, so the notation stays readable).
+  for (let i = 0; i < (ex.restBars || 0); i++) notes.push({ rest: true, beats: ex.bar, hidden: true });
   return notes;
 }
 
@@ -163,7 +165,7 @@ function plan(voice, length, click) {
         const n = notes[i];
         if (n.rest) continue;
         // Staccato notes sound for just over a third of the beat.
-        if (!n.slide) { ev.push({ t: n.t0, type: 'note', midi: n.midi, dur: (n.t1 - n.t0) * (ex.staccato ? 0.35 : 1) }); continue; }
+        if (!n.slide) { ev.push({ t: n.t0, type: 'note', midi: n.midi, dur: ex.staccato ? Math.max(0.1, (n.t1 - n.t0) * 0.35) : n.t1 - n.t0 }); continue; }
         const path = [];
         let j = i;
         for (; notes[j].slide; j++) {
@@ -421,6 +423,7 @@ function drawKey(seg) {
   const bars = [[]];
   let inBar = 0;
   for (const n of seg.notes) {
+    if (n.hidden) continue;
     if (inBar >= ex.bar) { bars.push([]); inBar = 0; }
     bars[bars.length - 1].push(n);
     inBar += n.beats;
@@ -516,7 +519,8 @@ function updateScore(force) {
     drawKey(seg);
     if (!seg.ex.breath) {
       const name = KEY_NAMES[seg.root % 12].replace('b', '♭').replace('#', '♯');
-      $('score-cap').textContent = `${name} major · ♩ = ${seg.ex.bpm}`;
+      const rests = seg.ex.restBars ? ` · then ${seg.ex.restBars} bars rest` : '';
+      $('score-cap').textContent = `${name} major · ♩ = ${seg.ex.bpm}${rests}`;
     }
   }
   // Which note is sounding now.
