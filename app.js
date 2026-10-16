@@ -10,7 +10,7 @@ const $ = (id) => document.getElementById(id);
 // the clef); alto and soprano read treble clef at pitch.
 const VOICES = {
   baritone: { name: 'Baritone', shift: 0, clef: 'bass' },
-  tenor: { name: 'Tenor', shift: 3, clef: 'treble8vb' },
+  tenor: { name: 'Tenor', shift: 3, clef: 'treble8vb', extra: 3 },  // extra: climbs 3 more keys, so it goes higher
   alto: { name: 'Alto', shift: 10, clef: 'treble' },
   soprano: { name: 'Soprano', shift: 15, clef: 'treble' },
 };
@@ -52,6 +52,11 @@ const EXERCISES = [
     lyric: ['ha', 'ha', 'ha', 'ha', 'ha'],
     notes: [[0, 1], [4, 1], [7, 1], [4, 1], [0, 1]], keys: { short: 5, full: 8 },
     how: 'Short, bouncy “ha” on each note, like a gentle laugh. Let your belly pulse each one; no squeezing in the throat.' },
+  { id: 'stac8', name: 'Staccato steps', what: 'Short “ha” in eighth notes, 1 · 1 2 3 · 3 4 5 · 3 · 1', root: 45, bpm: 100, bar: 4,
+    staccato: true, lyric: 'ha',
+    notes: [[0, .5], [null, .5], [0, .5], [2, .5], [4, .5], [null, .5], [4, .5], [5, .5], [7, .5], [null, .5], [4, .5], [null, .5], [0, .5], [null, .5]],
+    keys: { short: 5, full: 8 },
+    how: 'Quick, light “ha” on each note, with a tiny breath-stop in every rest. Keep the jaw loose and let the belly bounce.' },
   { id: 'agility', name: 'Agility', what: '“Lah” in rolling steps, 1-3-2-4-3-5-4-2-1', root: 45, bpm: 96, bar: 4, lyric: 'lah',
     notes: [[0, .5], [4, .5], [2, .5], [5, .5], [4, .5], [7, .5], [5, .5], [2, .5], [0, 2]], keys: { short: 5, full: 8 },
     how: 'Light and quick on “lah”: step up through the pattern and back down. Keep it small and easy; clean notes beat loud ones.' },
@@ -71,7 +76,7 @@ if (!LENGTHS[state.length]) state.length = 'full';
 const midiName = (m) => ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'][m % 12] + (Math.floor(m / 12) - 1);
 
 function keyRoots(ex, voice, length) {
-  const n = ex.keys[length];
+  const n = ex.keys[length] + (VOICES[voice].extra || 0);
   const start = ex.root + VOICES[voice].shift;
   const up = Array.from({ length: n }, (_, i) => start + i);
   // Full: after climbing, come back down a few keys so it ends somewhere comfortable.
@@ -81,7 +86,8 @@ function keyRoots(ex, voice, length) {
 
 // The pattern of one key, with a closing rest so it fills whole bars.
 function barsOf(ex) {
-  const notes = ex.notes.map(([semi, beats, slide]) => ({ semi, beats, slide: !!slide }));
+  // A note with no pitch (null) is a rest.
+  const notes = ex.notes.map(([semi, beats, slide]) => (semi === null ? { rest: true, beats } : { semi, beats, slide: !!slide }));
   const used = notes.reduce((a, n) => a + n.beats, 0), pad = Math.ceil(used / ex.bar) * ex.bar - used;
   if (pad) notes.push({ rest: true, beats: pad });
   return notes;
@@ -428,7 +434,7 @@ function drawKey(seg) {
   };
   const extra = startX(head(new VF.Stave(0, 0, 300))) - startX(new VF.Stave(0, 0, 300));
   // Room each bar needs; the whole score shrinks a little if the screen is narrower than that.
-  const weight = bars.map((b) => 28 + b.reduce((w, n) => w + (n.rest ? 24 : Array.isArray(ex.lyric) ? 46 : 26), 0));
+  const weight = bars.map((b) => 28 + b.reduce((w, n) => w + (n.rest ? (n.beats < 1 ? 14 : 24) : Array.isArray(ex.lyric) ? 46 : n.beats < 1 ? 22 : 26), 0));
   const total = weight.reduce((a, b) => a + b, 0);
   const scale = Math.min(W >= 480 ? 1.15 : 1, W / (extra + total + 8));
   const lw = W / scale - 4, H = 140;

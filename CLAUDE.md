@@ -60,7 +60,8 @@ Repo `lip-service` (renamed from `vocal-warmup` on 2026-10-14; the `vocal-warmup
 - **Metronome** option re-renders the track with clicks on every beat (downbeat higher).
 - **Breathing** is on the same grid (♩ = 60, 4/4): bar in, hiss bars (tied whole notes), rest bar; drawn on a
   percussion clef with a beat counter in the caption. Hiss counts must be multiples of 4.
-  Baritone starts from the listed `root`; the others are shifted up by `VOICES[...].shift` (tenor 3, alto 10, soprano 15). Keep everything gentle.
+  Baritone starts from the listed `root`; the others are shifted up by `VOICES[...].shift` (tenor 3, alto 10, soprano 15). `extra` adds keys to every exercise
+  (tenor climbs 3 more, David asked for tenor to go higher). A note with pitch `null` is a rest. Keep everything gentle.
 - **No voice, ever** (David's rule): no spoken or sung audio. Instructions are written (`how` on each exercise,
   shown in the player card); the audio is only synth tones. A chime marks each new exercise.
 - The voice and length switches copy Page Fright's Read | Improv pill switch (`.views`).

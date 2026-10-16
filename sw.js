@@ -2,7 +2,7 @@
 //
 // IMPORTANT: whenever any file below changes, bump VERSION.
 // That is how phones and iPads learn there's an update to download.
-const VERSION = 'v10';
+const VERSION = 'v11';
 const CACHE = `lipservice-${VERSION}`;
 const FONTS = 'lipservice-fonts';
 
