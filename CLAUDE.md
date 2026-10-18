@@ -50,7 +50,7 @@ with this section (copy it from any other app) plus an "## This app" section.
 ## This app
 
 **Lip Service**: a gentle vocal warm-up David plays in the car on the way to gigs (Bluetooth / CarPlay audio).
-Repo `lip-service` (renamed from `vocal-warmup` on 2026-10-14; the `vocal-warmup` repo now only redirects here). Live: https://davyrockett.github.io/lip-service/ See README.md for features.
+Repo `lip-service` (renamed from `vocal-warmup` on 2026-10-14; the `vocal-warmup` repo now only redirects here). Live: https://www.davyrockett.com/lip-service/ See README.md for features.
 
 - **How it works:** `app.js` renders the whole routine (warm-synth guide notes, chimes, breathing ticks) into
   one WAV track in the browser, played by an `<audio>` element. That's what keeps it playing with the phone locked

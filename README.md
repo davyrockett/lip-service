@@ -2,7 +2,7 @@
 
 A gentle vocal warm-up to play in the car on the way to a gig.
 
-**Open it:** https://davyrockett.github.io/lip-service/
+**Open it:** https://www.davyrockett.com/lip-service/
 On iPhone: open it in Safari → Share → **Add to Home Screen**. After that it works with no signal.
 
 ## Using it
