@@ -13,6 +13,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#F1F0EC">
 <script src="move.js" data-keep="vw."></script>
+<script src="suite.js" defer></script>
 <script>
 const THEME_BG = { light: '#F1F0EC', dark: '#151310' };
 function applyTheme(t) {
@@ -269,7 +270,7 @@ $('set-update').addEventListener('click', async () => {
 <script>
 // Offline support + updates. See sw.js.
 // The version shown in Settings. tools/bump.sh keeps this in step with VERSION in sw.js.
-window.APP_VERSION = 'v13';
+window.APP_VERSION = 'v14';
 (async () => {
   if (!('serviceWorker' in navigator)) return;
   const reg = await navigator.serviceWorker.register('sw.js');
